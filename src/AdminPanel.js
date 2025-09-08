@@ -11,6 +11,8 @@ const AdminPanel = ({ onLogout }) => {
   const [message, setMessage] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [sessionExpiry, setSessionExpiry] = useState(null);
+  const [generatedUrl, setGeneratedUrl] = useState('');
+  const [allConfigs, setAllConfigs] = useState([]);
 
   useEffect(() => {
     // Load settings from localStorage if available
@@ -24,7 +26,67 @@ const AdminPanel = ({ onLogout }) => {
     if (expiry) {
       setSessionExpiry(parseInt(expiry));
     }
+    
+    // Load all configurations
+    const configs = localStorage.getItem('allConfigurations');
+    if (configs) {
+      setAllConfigs(JSON.parse(configs));
+    }
   }, []);
+
+  // Generate secure, obfuscated URL
+  const generateSecureUrl = (config) => {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 15);
+    const configHash = btoa(JSON.stringify(config)).replace(/[+/=]/g, '').substring(0, 12);
+    const obfuscatedId = `${random}${configHash}${timestamp.toString(36)}`.substring(0, 16);
+    return obfuscatedId;
+  };
+
+  // Save configuration and generate URL
+  const saveConfigurationAndGenerateUrl = () => {
+    // Validate URLs
+    if (!settings.youtubeSubscribeUrl.includes('youtube.com')) {
+      setMessage('Please enter a valid YouTube URL');
+      return;
+    }
+    
+    if (!settings.pdfDownloadUrl.includes('http')) {
+      setMessage('Please enter a valid PDF URL');
+      return;
+    }
+
+    // Generate unique ID for this configuration
+    const configId = generateSecureUrl(settings);
+    const timestamp = new Date().toISOString();
+    
+    // Create configuration object
+    const newConfig = {
+      id: configId,
+      ...settings,
+      createdAt: timestamp,
+      lastModified: timestamp
+    };
+
+    // Save to configurations list
+    const updatedConfigs = [...allConfigs.filter(c => c.id !== configId), newConfig];
+    setAllConfigs(updatedConfigs);
+    localStorage.setItem('allConfigurations', JSON.stringify(updatedConfigs));
+    
+    // Also save as current active settings
+    localStorage.setItem('adminSettings', JSON.stringify(settings));
+    
+    // Generate the shareable URL
+    const baseUrl = window.location.origin;
+    const shareableUrl = `${baseUrl}/c/${configId}`;
+    setGeneratedUrl(shareableUrl);
+    
+    setMessage(`Configuration saved! Shareable URL generated.`);
+    setIsEditing(false);
+    
+    // Clear message after 5 seconds
+    setTimeout(() => setMessage(''), 5000);
+  };
 
   const extendSession = () => {
     const newExpiry = new Date().getTime() + (24 * 60 * 60 * 1000);
@@ -48,25 +110,35 @@ const AdminPanel = ({ onLogout }) => {
     return `${hours}h ${minutes}m`;
   };
 
-  const handleSave = () => {
-    // Validate URLs
-    if (!settings.youtubeSubscribeUrl.includes('youtube.com')) {
-      setMessage('Please enter a valid YouTube URL');
-      return;
-    }
-    
-    if (!settings.pdfDownloadUrl.includes('http')) {
-      setMessage('Please enter a valid PDF URL');
-      return;
-    }
+  const handleSave = saveConfigurationAndGenerateUrl;
 
-    // Save to localStorage
-    localStorage.setItem('adminSettings', JSON.stringify(settings));
-    setMessage('Settings saved successfully!');
-    setIsEditing(false);
-    
-    // Clear message after 3 seconds
+  const deleteConfiguration = (configId) => {
+    const updatedConfigs = allConfigs.filter(c => c.id !== configId);
+    setAllConfigs(updatedConfigs);
+    localStorage.setItem('allConfigurations', JSON.stringify(updatedConfigs));
+    setMessage('Configuration deleted successfully!');
     setTimeout(() => setMessage(''), 3000);
+  };
+
+  const loadConfiguration = (config) => {
+    setSettings({
+      youtubeChannelId: config.youtubeChannelId,
+      youtubeChannelName: config.youtubeChannelName,
+      youtubeSubscribeUrl: config.youtubeSubscribeUrl,
+      pdfDownloadUrl: config.pdfDownloadUrl
+    });
+    setMessage('Configuration loaded for editing');
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setMessage('URL copied to clipboard!');
+      setTimeout(() => setMessage(''), 3000);
+    }).catch(() => {
+      setMessage('Failed to copy URL');
+      setTimeout(() => setMessage(''), 3000);
+    });
   };
 
   const handleChange = (e) => {
@@ -203,6 +275,81 @@ const AdminPanel = ({ onLogout }) => {
             <p><strong>Subscribe URL:</strong> <a href={settings.youtubeSubscribeUrl} target="_blank" rel="noopener noreferrer">{settings.youtubeSubscribeUrl}</a></p>
             <p><strong>PDF URL:</strong> <a href={settings.pdfDownloadUrl} target="_blank" rel="noopener noreferrer">{settings.pdfDownloadUrl}</a></p>
           </div>
+        </div>
+
+        {generatedUrl && (
+          <div className="generated-url-card">
+            <h3>🔗 Generated Shareable URL</h3>
+            <div className="url-container">
+              <input 
+                type="text" 
+                value={generatedUrl} 
+                readOnly 
+                className="generated-url-input"
+              />
+              <button 
+                onClick={() => copyToClipboard(generatedUrl)} 
+                className="copy-btn"
+                title="Copy to clipboard"
+              >
+                📋 Copy
+              </button>
+            </div>
+            <p className="url-note">Share this URL to give users access to this specific PDF configuration.</p>
+          </div>
+        )}
+
+        <div className="configurations-card">
+          <h3>📚 All Configurations</h3>
+          {allConfigs.length === 0 ? (
+            <p className="no-configs">No configurations created yet. Save your first configuration above!</p>
+          ) : (
+            <div className="configs-list">
+              {allConfigs.map((config) => (
+                <div key={config.id} className="config-item">
+                  <div className="config-info">
+                    <h4>{config.youtubeChannelName}</h4>
+                    <p className="config-details">
+                      <strong>PDF:</strong> {config.pdfDownloadUrl.length > 50 ? 
+                        config.pdfDownloadUrl.substring(0, 50) + '...' : 
+                        config.pdfDownloadUrl
+                      }
+                    </p>
+                    <p className="config-meta">
+                      Created: {new Date(config.createdAt).toLocaleDateString()}
+                    </p>
+                    <div className="config-url">
+                      <strong>URL:</strong> 
+                      <code>{window.location.origin}/c/{config.id}</code>
+                      <button 
+                        onClick={() => copyToClipboard(`${window.location.origin}/c/${config.id}`)} 
+                        className="copy-btn-small"
+                        title="Copy URL"
+                      >
+                        📋
+                      </button>
+                    </div>
+                  </div>
+                  <div className="config-actions">
+                    <button 
+                      onClick={() => loadConfiguration(config)} 
+                      className="load-btn"
+                      title="Load for editing"
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button 
+                      onClick={() => deleteConfiguration(config.id)} 
+                      className="delete-btn"
+                      title="Delete configuration"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -478,6 +478,44 @@
   }
 }
 
+.disabled-notice {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.notice-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.disabled-notice h3 {
+  color: #495057;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.disabled-notice p {
+  color: #6c757d;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.contact-note {
+  background: #e3f2fd;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+  margin-top: 1.5rem !important;
+}
+
+.contact-note strong {
+  color: #1976d2;
+}
+
 
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
@@ -552,6 +590,24 @@
     margin: 1rem 0;
     font-size: 0.95rem;
   }
+  
+  .disabled-notice {
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  
+  .notice-icon {
+    font-size: 2.5rem;
+  }
+  
+  .disabled-notice h3 {
+    font-size: 1.2rem;
+  }
+  
+  .contact-note {
+    padding: 0.8rem;
+    margin-top: 1rem !important;
+  }
 }
 
 /* Small Mobile Devices */
@@ -608,6 +664,22 @@
   
   .message {
     padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  .disabled-notice {
+    padding: 1.2rem;
+  }
+  
+  .notice-icon {
+    font-size: 2rem;
+  }
+  
+  .disabled-notice h3 {
+    font-size: 1.1rem;
+  }
+  
+  .disabled-notice p {
     font-size: 0.9rem;
   }
 }
