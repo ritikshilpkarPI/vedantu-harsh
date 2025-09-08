@@ -147,30 +147,42 @@ function ConfigurableApp() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Load specific configuration by ID
-    const loadConfiguration = () => {
-      const allConfigs = localStorage.getItem('allConfigurations');
-      if (allConfigs) {
-        const configs = JSON.parse(allConfigs);
-        const targetConfig = configs.find(config => config.id === configId);
+    // Decode configuration from URL
+    const decodeConfigFromUrl = () => {
+      try {
+        // Remove random prefix and timestamp suffix to get the encoded config
+        // The format is: {random}{encodedConfig}{timestamp}
+        // We need to extract the middle part (encodedConfig)
         
-        if (targetConfig) {
-          setSettings({
-            youtubeChannelId: targetConfig.youtubeChannelId,
-            youtubeChannelName: targetConfig.youtubeChannelName,
-            youtubeSubscribeUrl: targetConfig.youtubeSubscribeUrl,
-            pdfDownloadUrl: targetConfig.pdfDownloadUrl
-          });
-        } else {
-          setMessage('Configuration not found. Please check the URL.');
+        // Remove first 6 characters (random) and last 8-10 characters (timestamp)
+        const urlWithoutRandomAndTime = configId.substring(6, configId.length - 8);
+        
+        // Restore base64 padding and characters
+        let base64Config = urlWithoutRandomAndTime.replace(/-/g, '+').replace(/_/g, '/');
+        while (base64Config.length % 4) {
+          base64Config += '=';
         }
-      } else {
-        setMessage('No configurations available.');
+        
+        // Decode the configuration
+        const configString = atob(base64Config);
+        const compactConfig = JSON.parse(configString);
+        
+        // Expand the compact config back to full format
+        setSettings({
+          youtubeChannelId: compactConfig.c,
+          youtubeChannelName: compactConfig.n,
+          youtubeSubscribeUrl: compactConfig.s,
+          pdfDownloadUrl: compactConfig.p
+        });
+        
+      } catch (error) {
+        console.error('Failed to decode configuration:', error);
+        setMessage('Invalid or corrupted link. Please check the URL.');
       }
       setIsLoading(false);
     };
 
-    loadConfiguration();
+    decodeConfigFromUrl();
   }, [configId]);
 
   const handleSubscribeClick = () => {

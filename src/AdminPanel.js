@@ -34,13 +34,28 @@ const AdminPanel = ({ onLogout }) => {
     }
   }, []);
 
-  // Generate secure, obfuscated URL
+  // Generate secure, obfuscated URL with embedded config
   const generateSecureUrl = (config) => {
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 15);
-    const configHash = btoa(JSON.stringify(config)).replace(/[+/=]/g, '').substring(0, 12);
-    const obfuscatedId = `${random}${configHash}${timestamp.toString(36)}`.substring(0, 16);
-    return obfuscatedId;
+    // Create a compact config object
+    const compactConfig = {
+      c: config.youtubeChannelId,
+      n: config.youtubeChannelName,
+      s: config.youtubeSubscribeUrl,
+      p: config.pdfDownloadUrl
+    };
+    
+    // Encode the configuration
+    const configString = JSON.stringify(compactConfig);
+    const encodedConfig = btoa(configString).replace(/[+/=]/g, (match) => {
+      return {'+': '-', '/': '_', '=': ''}[match];
+    });
+    
+    // Add some obfuscation
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 8);
+    
+    // Create the final URL ID with embedded config
+    return `${random}${encodedConfig}${timestamp}`;
   };
 
   // Save configuration and generate URL
@@ -68,13 +83,10 @@ const AdminPanel = ({ onLogout }) => {
       lastModified: timestamp
     };
 
-    // Save to configurations list
+    // Save to configurations list (for admin reference only)
     const updatedConfigs = [...allConfigs.filter(c => c.id !== configId), newConfig];
     setAllConfigs(updatedConfigs);
     localStorage.setItem('allConfigurations', JSON.stringify(updatedConfigs));
-    
-    // Also save as current active settings
-    localStorage.setItem('adminSettings', JSON.stringify(settings));
     
     // Generate the shareable URL
     const baseUrl = window.location.origin;
