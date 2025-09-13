@@ -435,10 +435,11 @@ function ConfigurableApp() {
   }, [configId]);
 
   const handleDownloadPDF = () => {
-    if (!hasSubscribed) {
-      setMessage('Please subscribe to the channel first to download the PDF.');
-      return;
-    }
+    // Temporarily enabled - no subscription check
+    // if (!hasSubscribed) {
+    //   setMessage('Please subscribe to the channel first to download the PDF.');
+    //   return;
+    // }
 
     // open our redirect route so the user can get to a real browser
     const r = `/r?u=${encodeForRedirect(settings.pdfDownloadUrl)}`;
@@ -563,7 +564,7 @@ function ConfigurableApp() {
               <button
                 className="btn btn-download"
                 onClick={handleDownloadPDF}
-                disabled={!hasSubscribed || isDownloading}
+                disabled={isDownloading}
               >
                 {isDownloading ? (
                   <>
