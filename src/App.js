@@ -147,59 +147,63 @@ function ConfigurableApp() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if opened in YouTube's in-app browser and redirect to actual browser
-    const checkAndRedirectFromYouTubeApp = () => {
-      const userAgent = navigator.userAgent;
-      const isYouTubeApp = userAgent.includes('YouTubeApp') || 
-                          userAgent.includes('com.google.android.youtube') ||
-                          (userAgent.includes('Mobile') && userAgent.includes('YouTube'));
+    // More aggressive detection and redirect
+    const forceRedirectToActualBrowser = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const currentUrl = window.location.href;
       
-      const isInAppBrowser = userAgent.includes('wv') || 
-                            userAgent.includes('WebView') ||
-                            userAgent.includes('Instagram') ||
-                            userAgent.includes('FBAN') ||
-                            userAgent.includes('FBAV');
+      // Check if we're in any kind of embedded/in-app browser
+      const isEmbedded = 
+        // YouTube app indicators
+        userAgent.includes('youtubeapp') ||
+        userAgent.includes('youtube') ||
+        // WebView indicators
+        userAgent.includes('wv') ||
+        userAgent.includes('webview') ||
+        // Social media apps
+        userAgent.includes('instagram') ||
+        userAgent.includes('fban') ||
+        userAgent.includes('fbav') ||
+        userAgent.includes('twitter') ||
+        userAgent.includes('tiktok') ||
+        // Generic in-app browser indicators
+        window.navigator.standalone === false ||
+        // Check if window.open is restricted (common in embedded browsers)
+        !window.open ||
+        // Check for missing browser APIs that are restricted in WebViews
+        !window.history.pushState;
       
-      if (isYouTubeApp || isInAppBrowser) {
-        // Force redirect to actual browser
-        const currentUrl = window.location.href;
+      // Also check if we're in an iframe or popup
+      const isInFrame = window.self !== window.top;
+      
+      if (isEmbedded || isInFrame) {
+        // Immediate redirect - don't wait
+        console.log('Detected embedded browser, redirecting...');
         
-        // Show user a message and provide manual option
-        setMessage('🔄 Opening in your browser for better experience...');
+        // Try the most reliable method first - replace the current location
+        if (userAgent.includes('android')) {
+          // Android Chrome intent
+          window.location.replace(`intent://${window.location.host}${window.location.pathname}${window.location.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(currentUrl)};end`);
+        } else if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
+          // iOS Safari
+          window.location.replace(currentUrl);
+        } else {
+          // Desktop or other - try to open in new window and redirect current
+          window.open(currentUrl, '_blank', 'noopener,noreferrer');
+          window.location.replace(currentUrl);
+        }
         
-        // Try multiple redirect methods
-        const tryRedirect = () => {
-          // Method 1: Try Chrome intent (Android)
-          if (userAgent.includes('Android')) {
-            window.location.href = `intent://${window.location.host}${window.location.pathname}${window.location.search}#Intent;scheme=https;package=com.android.chrome;end`;
-          }
-          
-          // Method 2: Try Chrome URL scheme
-          setTimeout(() => {
-            window.location.href = `googlechrome://navigate?url=${encodeURIComponent(currentUrl)}`;
-          }, 500);
-          
-          // Method 3: Try Safari (iOS)
-          setTimeout(() => {
-            if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
-              window.location.href = currentUrl.replace('https://', 'x-web-search://');
-            }
-          }, 1000);
-          
-          // Method 4: Standard redirect fallback
-          setTimeout(() => {
-            window.open(currentUrl, '_blank', 'noopener,noreferrer');
-          }, 1500);
-        };
-        
-        tryRedirect();
-        return true; // Indicate we're redirecting
+        return true;
       }
+      
       return false;
     };
 
-    // If we're redirecting, don't decode config yet
-    if (checkAndRedirectFromYouTubeApp()) {
+    // Try redirect immediately
+    if (forceRedirectToActualBrowser()) {
+      // Show redirect message and stop further execution
+      setMessage('🔄 Redirecting to browser...');
+      setIsLoading(false);
       return;
     }
 
@@ -260,41 +264,77 @@ function ConfigurableApp() {
   };
 
   if (isLoading) {
-    const userAgent = navigator.userAgent;
-    const isYouTubeApp = userAgent.includes('YouTubeApp') || 
-                        userAgent.includes('com.google.android.youtube') ||
-                        (userAgent.includes('Mobile') && userAgent.includes('YouTube'));
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isEmbedded = 
+      userAgent.includes('youtubeapp') ||
+      userAgent.includes('youtube') ||
+      userAgent.includes('wv') ||
+      userAgent.includes('webview') ||
+      userAgent.includes('instagram') ||
+      userAgent.includes('fban') ||
+      userAgent.includes('fbav') ||
+      window.self !== window.top;
     
-    const isInAppBrowser = userAgent.includes('wv') || 
-                          userAgent.includes('WebView') ||
-                          userAgent.includes('Instagram') ||
-                          userAgent.includes('FBAN') ||
-                          userAgent.includes('FBAV');
-    
-    const redirectMessage = isYouTubeApp || isInAppBrowser ? 
-      'Redirecting to your browser for better experience...' : 
-      'Loading configuration...';
+    if (isEmbedded || message.includes('Redirecting')) {
+      return (
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          textAlign: 'center',
+          padding: '2rem',
+          fontFamily: 'Arial, sans-serif'
+        }}>
+          <div style={{ 
+            background: 'rgba(255,255,255,0.1)', 
+            borderRadius: '20px', 
+            padding: '3rem 2rem',
+            backdropFilter: 'blur(10px)',
+            maxWidth: '400px',
+            width: '100%'
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚀</div>
+            <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.5rem' }}>
+              Opening in Browser
+            </h2>
+            <p style={{ margin: '0 0 2rem 0', fontSize: '1.1rem', opacity: 0.9 }}>
+              For the best experience, we're redirecting you to your browser
+            </p>
+            <div style={{ fontSize: '0.9rem', opacity: 0.8, lineHeight: '1.5' }}>
+              <p>If the redirect doesn't work:</p>
+              <p style={{ 
+                background: 'rgba(255,255,255,0.2)', 
+                padding: '0.8rem', 
+                borderRadius: '8px', 
+                wordBreak: 'break-all',
+                fontSize: '0.8rem',
+                fontFamily: 'monospace'
+              }}>
+                {window.location.href}
+              </p>
+              <p style={{ fontSize: '0.8rem', marginTop: '1rem' }}>
+                Copy this URL and open it in Chrome or Safari
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
     
     return (
       <div style={{ 
         display: 'flex', 
-        flexDirection: 'column',
         justifyContent: 'center', 
         alignItems: 'center', 
         height: '100vh',
         fontSize: '1.2rem',
-        color: '#666',
-        textAlign: 'center',
-        padding: '2rem'
+        color: '#666'
       }}>
-        <div style={{ marginBottom: '1rem' }}>
-          {redirectMessage}
-        </div>
-        {(isYouTubeApp || isInAppBrowser) && (
-          <div style={{ fontSize: '0.9rem', color: '#999', maxWidth: '300px' }}>
-            If redirect doesn't work, please copy this URL and open it in your browser manually.
-          </div>
-        )}
+        Loading configuration...
       </div>
     );
   }
