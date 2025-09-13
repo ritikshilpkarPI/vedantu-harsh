@@ -190,21 +190,37 @@ function ConfigurableApp() {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     if (isMobile) {
-      // For mobile, show instructions and copy URL to clipboard
-      setMessage('📱 Mobile detected! Please follow these steps: 1) Copy the YouTube link below, 2) Open it in your browser, 3) Subscribe, 4) Return to this tab and click Download PDF');
-      
-      // Copy URL to clipboard
-      navigator.clipboard.writeText(settings.youtubeSubscribeUrl).then(() => {
-        setMessage('📱 Mobile detected! YouTube link copied to clipboard. Open it in your browser, subscribe, then return here and click Download PDF');
-      }).catch(() => {
-        setMessage('📱 Mobile detected! Please manually copy this link: ' + settings.youtubeSubscribeUrl);
-      });
-      
-      // Still try to open in new tab as fallback
-      window.open(settings.youtubeSubscribeUrl, '_blank');
+      // For mobile, try multiple methods to ensure new tab opens
+      try {
+        // Method 1: Try window.open with specific parameters
+        const newWindow = window.open(settings.youtubeSubscribeUrl, '_blank', 'noopener,noreferrer');
+        
+        // Method 2: If that fails, try creating a temporary link and clicking it
+        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+          const link = document.createElement('a');
+          link.href = settings.youtubeSubscribeUrl;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        
+        setMessage('📱 YouTube opened in new tab! Please subscribe and return to this tab to download PDF.');
+      } catch (error) {
+        // Fallback: Show manual instructions
+        setMessage('📱 Please copy this link and open it in a new tab: ' + settings.youtubeSubscribeUrl);
+        
+        // Copy to clipboard as backup
+        navigator.clipboard.writeText(settings.youtubeSubscribeUrl).then(() => {
+          setMessage('📱 Link copied to clipboard! Open it in a new tab, subscribe, then return here.');
+        }).catch(() => {
+          setMessage('📱 Please manually copy this link: ' + settings.youtubeSubscribeUrl);
+        });
+      }
     } else {
       // For desktop, open in new tab normally
-      window.open(settings.youtubeSubscribeUrl, '_blank');
+      window.open(settings.youtubeSubscribeUrl, '_blank', 'noopener,noreferrer');
       setMessage('YouTube opened in new tab. Please subscribe and return to this tab.');
     }
     
@@ -267,6 +283,22 @@ function ConfigurableApp() {
               >
                 📺 Subscribe to Channel
               </button>
+              
+              {/* Mobile-specific alternative button */}
+              {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
+                <a 
+                  href={settings.youtubeSubscribeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-subscribe-mobile"
+                  onClick={() => {
+                    setHasSubscribed(true);
+                    setMessage('📱 YouTube opened in new tab! Please subscribe and return to this tab to download PDF.');
+                  }}
+                >
+                  📺 Open YouTube in New Tab
+                </a>
+              )}
               
               <button 
                 className="btn btn-download"
