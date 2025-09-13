@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open in Browser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            opacity: 0.9;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .button.primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border-color: transparent;
+        }
+        
+        .button.primary:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+        
+        .url-section {
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .url-label {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+        
+        .url-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .url-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            opacity: 0.8;
+        }
+        
+        .status {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .status.success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+        
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .button {
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🚀</div>
+        <h1>Open in Browser</h1>
+        <p class="subtitle">For the best experience, open this link in your browser</p>
+        
+        <div id="status" class="status hidden"></div>
+        
+        <button id="openBrowser" class="button primary">📱 Open in Browser</button>
+        
+        <a id="intentLink" class="button hidden">🔗 Android Chrome Intent</a>
+        
+        <div class="url-section">
+            <div class="url-label">Original URL:</div>
+            <input type="text" id="urlInput" class="url-input" readonly>
+        </div>
+        
+        <button id="copyUrl" class="button">📋 Copy URL</button>
+        
+        <div class="instructions">
+            <strong>iOS Users:</strong><br>
+            1. Tap "Copy URL" above<br>
+            2. Open Safari or Chrome<br>
+            3. Paste the URL in address bar<br><br>
+            
+            <strong>Android Users:</strong><br>
+            1. Try "Open in Browser" button<br>
+            2. Or tap "Android Chrome Intent"<br>
+            3. Or copy URL and paste in Chrome
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            let finalUrl = '';
+            
+            // Get elements
+            const statusEl = document.getElementById('status');
+            const openBrowserBtn = document.getElementById('openBrowser');
+            const intentLink = document.getElementById('intentLink');
+            const urlInput = document.getElementById('urlInput');
+            const copyUrlBtn = document.getElementById('copyUrl');
+            
+            // Utility functions
+            function showStatus(message, type = 'success') {
+                statusEl.textContent = message;
+                statusEl.className = `status ${type}`;
+                statusEl.classList.remove('hidden');
+                setTimeout(() => {
+                    statusEl.classList.add('hidden');
+                }, 3000);
+            }
+            
+            function isEmbedded() {
+                try {
+                    const ua = navigator.userAgent.toLowerCase();
+                    return (
+                        // YouTube app
+                        ua.includes('youtubeapp') ||
+                        ua.includes('youtube') ||
+                        // WebView indicators
+                        ua.includes('wv') ||
+                        ua.includes('webview') ||
+                        // Social media apps
+                        ua.includes('instagram') ||
+                        ua.includes('fban') ||
+                        ua.includes('fbav') ||
+                        ua.includes('twitter') ||
+                        ua.includes('tiktok') ||
+                        // Frame detection
+                        window.self !== window.top ||
+                        // Missing APIs
+                        !window.open ||
+                        !window.history.pushState
+                    );
+                } catch (e) {
+                    return true; // Assume embedded if detection fails
+                }
+            }
+            
+            function isAndroid() {
+                return /android/i.test(navigator.userAgent);
+            }
+            
+            function isiOS() {
+                return /iphone|ipad|ipod/i.test(navigator.userAgent);
+            }
+            
+            // Decode URL from query parameter
+            function decodeUrl() {
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const encodedUrl = params.get('u');
+                    
+                    if (!encodedUrl) {
+                        throw new Error('No URL parameter found');
+                    }
+                    
+                    // Try base64 decode first (encodeURIComponent(btoa(url)))
+                    try {
+                        const decodedFromUri = decodeURIComponent(encodedUrl);
+                        finalUrl = atob(decodedFromUri);
+                        // Validate URL
+                        new URL(finalUrl);
+                    } catch (e) {
+                        // Fallback to plain decodeURIComponent
+                        finalUrl = decodeURIComponent(encodedUrl);
+                        // Validate URL
+                        new URL(finalUrl);
+                    }
+                    
+                    urlInput.value = finalUrl;
+                    return true;
+                } catch (e) {
+                    console.error('URL decode error:', e);
+                    showStatus('Invalid or missing URL parameter', 'error');
+                    finalUrl = window.location.origin;
+                    urlInput.value = finalUrl;
+                    return false;
+                }
+            }
+            
+            // Create Chrome intent URL
+            function createChromeIntent(url) {
+                try {
+                    const intentUrl = `intent://${new URL(url).host}${new URL(url).pathname}${new URL(url).search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`;
+                    return intentUrl;
+                } catch (e) {
+                    return `intent://www.google.com#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`;
+                }
+            }
+            
+            // Attempt automatic redirect
+            function attemptAutoRedirect() {
+                if (!finalUrl) return;
+                
+                try {
+                    if (isEmbedded() && isAndroid()) {
+                        // Android embedded - try intent redirect
+                        const intentUrl = createChromeIntent(finalUrl);
+                        
+                        // Method 1: Direct location redirect
+                        setTimeout(() => {
+                            try {
+                                window.location.href = intentUrl;
+                            } catch (e) {
+                                console.log('Direct intent redirect failed:', e);
+                            }
+                        }, 100);
+                        
+                        // Method 2: Invisible iframe
+                        setTimeout(() => {
+                            try {
+                                const iframe = document.createElement('iframe');
+                                iframe.style.display = 'none';
+                                iframe.src = intentUrl;
+                                document.body.appendChild(iframe);
+                                setTimeout(() => document.body.removeChild(iframe), 2000);
+                            } catch (e) {
+                                console.log('Iframe intent failed:', e);
+                            }
+                        }, 200);
+                        
+                        showStatus('Attempting to open in Chrome...', 'success');
+                        
+                    } else {
+                        // Try window.open first
+                        setTimeout(() => {
+                            try {
+                                const newWindow = window.open(finalUrl, '_blank', 'noopener,noreferrer');
+                                if (newWindow) {
+                                    showStatus('Opened in new tab!', 'success');
+                                } else {
+                                    throw new Error('Window blocked');
+                                }
+                            } catch (e) {
+                                // Fallback to location.href
+                                setTimeout(() => {
+                                    try {
+                                        window.location.href = finalUrl;
+                                    } catch (e2) {
+                                        console.log('Location redirect failed:', e2);
+                                    }
+                                }, 500);
+                            }
+                        }, 100);
+                    }
+                } catch (e) {
+                    console.error('Auto redirect failed:', e);
+                }
+            }
+            
+            // Event handlers
+            openBrowserBtn.addEventListener('click', function() {
+                try {
+                    const opened = window.open(finalUrl, '_blank', 'noopener,noreferrer');
+                    if (opened) {
+                        showStatus('Opened in new tab!', 'success');
+                    } else {
+                        showStatus('Please allow popups or try copying the URL', 'error');
+                    }
+                } catch (e) {
+                    showStatus('Could not open browser. Try copying the URL.', 'error');
+                }
+            });
+            
+            copyUrlBtn.addEventListener('click', function() {
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(finalUrl).then(() => {
+                            showStatus('URL copied to clipboard!', 'success');
+                        }).catch(() => {
+                            // Fallback selection
+                            urlInput.select();
+                            document.execCommand('copy');
+                            showStatus('URL copied!', 'success');
+                        });
+                    } else {
+                        // Fallback selection
+                        urlInput.select();
+                        urlInput.setSelectionRange(0, 99999);
+                        document.execCommand('copy');
+                        showStatus('URL copied!', 'success');
+                    }
+                } catch (e) {
+                    showStatus('Could not copy. Please select and copy manually.', 'error');
+                    urlInput.select();
+                }
+            });
+            
+            // Initialize
+            if (decodeUrl()) {
+                // Show Android intent link if applicable
+                if (isAndroid()) {
+                    const intentUrl = createChromeIntent(finalUrl);
+                    intentLink.href = intentUrl;
+                    intentLink.classList.remove('hidden');
+                }
+                
+                // Attempt auto redirect after a short delay
+                setTimeout(attemptAutoRedirect, 300);
+            }
+            
+            // Make URL input selectable on click
+            urlInput.addEventListener('click', function() {
+                this.select();
+            });
+            
+        })();
+    </script>
+</body>
+</html>
