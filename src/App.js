@@ -241,9 +241,15 @@ function ConfigurableApp() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-subscribe"
-                onClick={() => {
+                role="button"
+                onClick={(e) => {
+                  // Ensure it opens in browser even if in webview
+                  if (window.navigator.userAgent.includes('wv') || window.navigator.userAgent.includes('WebView')) {
+                    e.preventDefault();
+                    window.open(settings.youtubeSubscribeUrl, '_blank', 'noopener,noreferrer');
+                  }
                   setHasSubscribed(true);
-                  setMessage('YouTube opened in new tab! Please subscribe and return to this tab to download PDF.');
+                  setMessage('YouTube opened in browser! Please subscribe and return to this tab to download PDF.');
                 }}
               >
                 📺 Subscribe to Channel

@@ -90,12 +90,30 @@
   min-width: 200px;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .btn-subscribe:hover {
   background: #ff3838;
   transform: translateY(-3px);
   box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+  color: white;
+  text-decoration: none;
+}
+
+.btn-subscribe:visited,
+.btn-subscribe:active,
+.btn-subscribe:focus {
+  color: white;
+  text-decoration: none;
 }
 
 
