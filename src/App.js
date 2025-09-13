@@ -185,47 +185,6 @@ function ConfigurableApp() {
     decodeConfigFromUrl();
   }, [configId]);
 
-  const handleSubscribeClick = () => {
-    // Check if it's a mobile device
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    if (isMobile) {
-      // For mobile, try multiple methods to ensure new tab opens
-      try {
-        // Method 1: Try window.open with specific parameters
-        const newWindow = window.open(settings.youtubeSubscribeUrl, '_blank', 'noopener,noreferrer');
-        
-        // Method 2: If that fails, try creating a temporary link and clicking it
-        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-          const link = document.createElement('a');
-          link.href = settings.youtubeSubscribeUrl;
-          link.target = '_blank';
-          link.rel = 'noopener noreferrer';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
-        
-        setMessage('📱 YouTube opened in new tab! Please subscribe and return to this tab to download PDF.');
-      } catch (error) {
-        // Fallback: Show manual instructions
-        setMessage('📱 Please copy this link and open it in a new tab: ' + settings.youtubeSubscribeUrl);
-        
-        // Copy to clipboard as backup
-        navigator.clipboard.writeText(settings.youtubeSubscribeUrl).then(() => {
-          setMessage('📱 Link copied to clipboard! Open it in a new tab, subscribe, then return here.');
-        }).catch(() => {
-          setMessage('📱 Please manually copy this link: ' + settings.youtubeSubscribeUrl);
-        });
-      }
-    } else {
-      // For desktop, open in new tab normally
-      window.open(settings.youtubeSubscribeUrl, '_blank', 'noopener,noreferrer');
-      setMessage('YouTube opened in new tab. Please subscribe and return to this tab.');
-    }
-    
-    setHasSubscribed(true);
-  };
 
   const handleDownloadPDF = () => {
     if (!hasSubscribed) {
@@ -277,28 +236,18 @@ function ConfigurableApp() {
             </div>
 
             <div className="two-button-layout">
-              <button 
+              <a 
+                href={settings.youtubeSubscribeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn btn-subscribe"
-                onClick={handleSubscribeClick}
+                onClick={() => {
+                  setHasSubscribed(true);
+                  setMessage('YouTube opened in new tab! Please subscribe and return to this tab to download PDF.');
+                }}
               >
                 📺 Subscribe to Channel
-              </button>
-              
-              {/* Mobile-specific alternative button */}
-              {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
-                <a 
-                  href={settings.youtubeSubscribeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-subscribe-mobile"
-                  onClick={() => {
-                    setHasSubscribed(true);
-                    setMessage('📱 YouTube opened in new tab! Please subscribe and return to this tab to download PDF.');
-                  }}
-                >
-                  📺 Open YouTube in New Tab
-                </a>
-              )}
+              </a>
               
               <button 
                 className="btn btn-download"
@@ -322,46 +271,6 @@ function ConfigurableApp() {
               </div>
             )}
 
-            {/* Mobile-specific YouTube link display */}
-            {hasSubscribed && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
-              <div className="mobile-youtube-link">
-                <h3>📱 Mobile Users - YouTube Link:</h3>
-                <div className="link-container">
-                  <input 
-                    type="text" 
-                    value={settings.youtubeSubscribeUrl} 
-                    readOnly 
-                    className="youtube-url-input"
-                    onClick={(e) => e.target.select()}
-                  />
-                  <button 
-                    className="copy-link-btn"
-                    onClick={() => {
-                      navigator.clipboard.writeText(settings.youtubeSubscribeUrl).then(() => {
-                        setMessage('YouTube link copied to clipboard!');
-                      }).catch(() => {
-                        setMessage('Please manually copy the link above');
-                      });
-                    }}
-                  >
-                    📋 Copy Link
-                  </button>
-                </div>
-                <p className="mobile-instructions">
-                  <strong>Steps:</strong> 1) Copy the link above, 2) Open it in your browser, 3) Subscribe to the channel, 4) Return to this tab and download PDF
-                </p>
-                <div className="return-actions">
-                  <button 
-                    className="return-to-app-btn"
-                    onClick={() => {
-                      setMessage('Welcome back! You can now download the PDF below.');
-                    }}
-                  >
-                    ✅ I've Subscribed - Return to App
-                  </button>
-                </div>
-              </div>
-            )}
 
             <div className="instructions">
               <p><strong>How it works:</strong></p>

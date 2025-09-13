@@ -98,32 +98,6 @@
   box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
 }
 
-.btn-subscribe-mobile {
-  background: #ff6b6b;
-  color: white;
-  font-size: 1.2rem;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  min-width: 200px;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.btn-subscribe-mobile:hover {
-  background: #ff5252;
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
-  color: white;
-  text-decoration: none;
-}
 
 .btn-download {
   background: #5f27cd;
@@ -686,17 +660,12 @@
   }
   
   .btn-subscribe,
-  .btn-download,
-  .btn-subscribe-mobile {
+  .btn-download {
     width: 100%;
     max-width: 280px;
     font-size: 1.1rem;
     padding: 1rem 1.5rem;
     min-width: auto;
-  }
-  
-  .btn-subscribe-mobile {
-    margin-top: 0.8rem;
   }
   
   /* Mobile YouTube Link Styles */
@@ -808,15 +777,10 @@
   }
   
   .btn-subscribe,
-  .btn-download,
-  .btn-subscribe-mobile {
+  .btn-download {
     font-size: 1rem;
     padding: 0.9rem 1.2rem;
     max-width: 100%;
-  }
-  
-  .btn-subscribe-mobile {
-    margin-top: 0.6rem;
   }
   
   .instructions {
@@ -881,13 +845,8 @@
   }
   
   .btn-subscribe,
-  .btn-download,
-  .btn-subscribe-mobile {
+  .btn-download {
     font-size: 0.95rem;
     padding: 0.8rem 1rem;
-  }
-  
-  .btn-subscribe-mobile {
-    margin-top: 0.5rem;
   }
 }
