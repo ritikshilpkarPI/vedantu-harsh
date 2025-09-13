@@ -147,6 +147,62 @@ function ConfigurableApp() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Check if opened in YouTube's in-app browser and redirect to actual browser
+    const checkAndRedirectFromYouTubeApp = () => {
+      const userAgent = navigator.userAgent;
+      const isYouTubeApp = userAgent.includes('YouTubeApp') || 
+                          userAgent.includes('com.google.android.youtube') ||
+                          (userAgent.includes('Mobile') && userAgent.includes('YouTube'));
+      
+      const isInAppBrowser = userAgent.includes('wv') || 
+                            userAgent.includes('WebView') ||
+                            userAgent.includes('Instagram') ||
+                            userAgent.includes('FBAN') ||
+                            userAgent.includes('FBAV');
+      
+      if (isYouTubeApp || isInAppBrowser) {
+        // Force redirect to actual browser
+        const currentUrl = window.location.href;
+        
+        // Show user a message and provide manual option
+        setMessage('🔄 Opening in your browser for better experience...');
+        
+        // Try multiple redirect methods
+        const tryRedirect = () => {
+          // Method 1: Try Chrome intent (Android)
+          if (userAgent.includes('Android')) {
+            window.location.href = `intent://${window.location.host}${window.location.pathname}${window.location.search}#Intent;scheme=https;package=com.android.chrome;end`;
+          }
+          
+          // Method 2: Try Chrome URL scheme
+          setTimeout(() => {
+            window.location.href = `googlechrome://navigate?url=${encodeURIComponent(currentUrl)}`;
+          }, 500);
+          
+          // Method 3: Try Safari (iOS)
+          setTimeout(() => {
+            if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
+              window.location.href = currentUrl.replace('https://', 'x-web-search://');
+            }
+          }, 1000);
+          
+          // Method 4: Standard redirect fallback
+          setTimeout(() => {
+            window.open(currentUrl, '_blank', 'noopener,noreferrer');
+          }, 1500);
+        };
+        
+        tryRedirect();
+        return true; // Indicate we're redirecting
+      }
+      return false;
+    };
+
+    // If we're redirecting, don't decode config yet
+    if (checkAndRedirectFromYouTubeApp()) {
+      return;
+    }
+
     // Decode configuration from URL
     const decodeConfigFromUrl = () => {
       try {
@@ -204,16 +260,41 @@ function ConfigurableApp() {
   };
 
   if (isLoading) {
+    const userAgent = navigator.userAgent;
+    const isYouTubeApp = userAgent.includes('YouTubeApp') || 
+                        userAgent.includes('com.google.android.youtube') ||
+                        (userAgent.includes('Mobile') && userAgent.includes('YouTube'));
+    
+    const isInAppBrowser = userAgent.includes('wv') || 
+                          userAgent.includes('WebView') ||
+                          userAgent.includes('Instagram') ||
+                          userAgent.includes('FBAN') ||
+                          userAgent.includes('FBAV');
+    
+    const redirectMessage = isYouTubeApp || isInAppBrowser ? 
+      'Redirecting to your browser for better experience...' : 
+      'Loading configuration...';
+    
     return (
       <div style={{ 
         display: 'flex', 
+        flexDirection: 'column',
         justifyContent: 'center', 
         alignItems: 'center', 
         height: '100vh',
         fontSize: '1.2rem',
-        color: '#666'
+        color: '#666',
+        textAlign: 'center',
+        padding: '2rem'
       }}>
-        Loading configuration...
+        <div style={{ marginBottom: '1rem' }}>
+          {redirectMessage}
+        </div>
+        {(isYouTubeApp || isInAppBrowser) && (
+          <div style={{ fontSize: '0.9rem', color: '#999', maxWidth: '300px' }}>
+            If redirect doesn't work, please copy this URL and open it in your browser manually.
+          </div>
+        )}
       </div>
     );
   }
