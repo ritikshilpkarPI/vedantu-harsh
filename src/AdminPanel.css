@@ -2,6 +2,7 @@
   min-height: 100vh;
   background: #f8f9fa;
   padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
 }
 
 .admin-header {
@@ -80,11 +81,12 @@
 }
 
 .admin-content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
+  align-items: start;
 }
 
 .settings-card {
@@ -92,6 +94,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 2rem;
+  min-height: 600px;
 }
 
 .settings-header {
@@ -252,6 +255,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 2rem;
   height: fit-content;
+  min-height: 300px;
 }
 
 .preview-card h3 {
@@ -437,6 +441,84 @@
   background: #c82333;
 }
 
+/* Desktop Improvements */
+@media (min-width: 1200px) {
+  .admin-panel {
+    padding: 3rem 2rem;
+  }
+  
+  .admin-content {
+    max-width: 1600px;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+  
+  .settings-card {
+    padding: 2.5rem;
+  }
+  
+  .preview-card, .generated-url-card, .configurations-card {
+    padding: 2.5rem;
+  }
+  
+  .admin-header h1 {
+    font-size: 2.5rem;
+  }
+  
+  .settings-header h2 {
+    font-size: 1.8rem;
+  }
+  
+  .form-group input {
+    padding: 1rem;
+    font-size: 1.1rem;
+  }
+  
+  .form-group label {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .edit-btn, .save-btn, .cancel-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .config-item {
+    padding: 2rem;
+  }
+  
+  .config-info h4 {
+    font-size: 1.3rem;
+  }
+}
+
+/* Tablet Responsive */
+@media (max-width: 1024px) {
+  .admin-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .admin-header-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .session-info {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .admin-panel {
@@ -449,30 +531,38 @@
     gap: 1rem;
   }
   
+  .admin-header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
   .admin-header-actions {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     width: 100%;
-    gap: 0.5rem;
+    gap: 1rem;
   }
   
   .session-info {
     width: 100%;
     justify-content: space-between;
-    padding: 0.4rem 0.8rem;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
   }
   
   .session-info span {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
   }
   
   .extend-btn {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
   }
   
-  .admin-header h1 {
-    font-size: 1.5rem;
+  .logout-btn {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
   }
   
   .admin-content {
@@ -482,11 +572,18 @@
   
   .settings-card {
     padding: 1.5rem;
+    min-height: auto;
   }
   
   .settings-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .settings-header h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
   }
   
   .settings-actions {
@@ -495,19 +592,30 @@
   
   .edit-actions {
     width: 100%;
+    display: flex;
+    gap: 0.5rem;
   }
   
   .edit-btn, .save-btn, .cancel-btn {
     flex: 1;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
   }
   
   .settings-footer {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .reset-btn {
+    width: 100%;
+    padding: 0.6rem 1rem;
   }
   
   .preview-card, .generated-url-card, .configurations-card {
     padding: 1.5rem;
+    min-height: auto;
   }
   
   .url-container {
@@ -515,47 +623,154 @@
     gap: 1rem;
   }
   
+  .generated-url-input {
+    font-size: 0.8rem;
+    padding: 0.6rem;
+  }
+  
+  .copy-btn {
+    width: 100%;
+    padding: 0.6rem 1rem;
+  }
+  
   .config-item {
     flex-direction: column;
     align-items: stretch;
+    padding: 1rem;
+  }
+  
+  .config-info h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .config-details, .config-meta {
+    font-size: 0.85rem;
   }
   
   .config-actions {
     flex-direction: row;
     justify-content: space-between;
+    margin-top: 1rem;
+  }
+  
+  .load-btn, .delete-btn {
+    flex: 1;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+    margin: 0 0.25rem;
   }
   
   .config-url {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+    margin-top: 0.8rem;
   }
   
   .config-url code {
     margin-left: 0;
     word-break: break-all;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+  }
+  
+  .copy-btn-small {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    padding: 0.3rem 0.6rem;
   }
 }
 
+/* Small Mobile Devices */
 @media (max-width: 480px) {
   .admin-panel {
     padding: 0.5rem;
-  }
-  
-  .settings-card, .preview-card {
-    padding: 1rem;
   }
   
   .admin-header h1 {
     font-size: 1.3rem;
   }
   
+  .session-info {
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .session-info span {
+    font-size: 0.8rem;
+  }
+  
+  .extend-btn {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .logout-btn {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .settings-card, .preview-card, .generated-url-card, .configurations-card {
+    padding: 1rem;
+  }
+  
   .settings-header h2 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
   
   .form-group input {
-    padding: 0.65rem;
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+  
+  .form-group label {
+    font-size: 0.85rem;
+  }
+  
+  .edit-btn, .save-btn, .cancel-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .reset-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .generated-url-input {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+  
+  .copy-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .config-item {
+    padding: 0.8rem;
+  }
+  
+  .config-info h4 {
     font-size: 0.95rem;
+  }
+  
+  .config-details, .config-meta {
+    font-size: 0.8rem;
+  }
+  
+  .load-btn, .delete-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  .config-url code {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.4rem;
+  }
+  
+  .copy-btn-small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
   }
 }
