@@ -76,7 +76,7 @@ function buildIntentUrl(finalUrl) {
 }
 
 /* -----------------------
-   RedirectLauncher (in-file)
+   RedirectLauncherInner (in-file)
    Route: /r?u=<encoded-url>
    ----------------------- */
 function RedirectLauncherInner() {
@@ -100,6 +100,7 @@ function RedirectLauncherInner() {
     // If embedded and Android, attempt intent:// which often opens Chrome.
     if (embedded && isAndroid()) {
       try {
+        // Try automatic intent redirect first
         window.location.href = buildIntentUrl(finalUrl);
       } catch (e) {
         // ignore - fallback UI will appear
@@ -138,6 +139,9 @@ function RedirectLauncherInner() {
     );
   }
 
+  // Build an intent:// URL string (for Android manual tap)
+  const intentHref = buildIntentUrl(finalUrl);
+
   return (
     <div
       style={{
@@ -152,7 +156,7 @@ function RedirectLauncherInner() {
     >
       <div
         style={{
-          maxWidth: 620,
+          maxWidth: 720,
           width: '100%',
           padding: 24,
           borderRadius: 12,
@@ -162,13 +166,14 @@ function RedirectLauncherInner() {
         }}
       >
         <h2 style={{ marginTop: 0 }}>Open in Browser</h2>
+
         <p style={{ color: '#444' }}>
           {isEmbeddedBrowser()
-            ? 'It looks like you opened this link inside an app. Tap the button below to open the destination in your browser.'
-            : 'We tried to open the link for you in a new tab.'}
+            ? 'This link opened inside an app. Use one of the options below to open the destination in your browser.'
+            : 'If a new tab did not open, use these options to open the destination.'}
         </p>
 
-        <div style={{ margin: '18px 0' }}>
+        <div style={{ margin: '16px 0', display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button
             onClick={() => {
               try {
@@ -192,10 +197,31 @@ function RedirectLauncherInner() {
           >
             Open in Browser
           </button>
+
+          {/* Visible intent:// anchor — user can tap this if automatic redirect failed.
+              Some in-app browsers will honor a user-tapped intent link even if JS redirects are blocked. */}
+          <a
+            href={intentHref}
+            style={{
+              display: 'inline-block',
+              padding: '12px 18px',
+              borderRadius: 10,
+              textDecoration: 'none',
+              fontSize: 16,
+              border: '1px solid #ddd',
+              color: '#205781'
+            }}
+            onClick={() => {
+              /* allow native handler */
+            }}
+          >
+            Open (Android intent)
+          </a>
         </div>
 
         <div style={{ fontSize: 13, color: '#666', marginTop: 6 }}>
-          <p style={{ marginBottom: 8 }}>Or copy this URL and open it in Chrome / Safari:</p>
+          <p style={{ marginBottom: 6 }}>Or copy this URL and open it in Chrome / Safari:</p>
+
           <div
             style={{
               background: '#fafafa',
@@ -208,6 +234,7 @@ function RedirectLauncherInner() {
           >
             {finalUrl}
           </div>
+
           <div style={{ marginTop: 10 }}>
             <button
               onClick={() => {
@@ -234,7 +261,8 @@ function RedirectLauncherInner() {
 
         {triedAuto && (
           <p style={{ color: '#888', fontSize: 12, marginTop: 12 }}>
-            If this page does not open your browser automatically, use the button above or copy/paste the URL into your browser.
+            If nothing happens automatically, tap “Open (Android intent)” (Android) or use the Open in Browser /
+            Copy URL options (iOS).
           </p>
         )}
       </div>
@@ -577,7 +605,6 @@ function App() {
         <Route path="/c/:configId" element={<ConfigurableApp />} />
         <Route path="/admin" element={<AdminRoute />} />
         <Route path="/r" element={<RedirectLauncherInner />} />
-        {/* optional: keep a friendly link to root */}
         <Route
           path="*"
           element={
