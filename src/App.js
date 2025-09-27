@@ -471,19 +471,21 @@ function ConfigurableApp() {
     
     // Listen for iframe load completion
     iframe.onload = () => {
+      setIsDownloading(false);
       setMessage('PDF download started! Redirecting to YouTube in 5 seconds...');
       
       // 5 second delay to ensure download completes, then redirect
-      setTimeout(() => {
+    setTimeout(() => {
         window.location.href = settings.youtubeSubscribeUrl;
       }, 5000);
     };
 
     // Fallback in case onload doesn't fire
     iframe.onerror = () => {
+      setIsDownloading(false);
       setMessage('PDF download may have started. Redirecting to YouTube in 5 seconds...');
-    
-    setTimeout(() => {
+      
+      setTimeout(() => {
         window.location.href = settings.youtubeSubscribeUrl;
       }, 5000);
     };
