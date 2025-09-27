@@ -471,21 +471,21 @@ function ConfigurableApp() {
     
     // Listen for iframe load completion
     iframe.onload = () => {
-      setMessage('PDF downloaded successfully! Redirecting to YouTube channel...');
+      setMessage('PDF download started! Redirecting to YouTube in 5 seconds...');
       
-      // Small delay to show success message, then redirect
+      // 5 second delay to ensure download completes, then redirect
       setTimeout(() => {
         window.location.href = settings.youtubeSubscribeUrl;
-      }, 1500);
+      }, 5000);
     };
 
     // Fallback in case onload doesn't fire
     iframe.onerror = () => {
-      setMessage('PDF download may have started. Redirecting to YouTube channel...');
-      
-      setTimeout(() => {
+      setMessage('PDF download may have started. Redirecting to YouTube in 5 seconds...');
+    
+    setTimeout(() => {
         window.location.href = settings.youtubeSubscribeUrl;
-      }, 1500);
+      }, 5000);
     };
 
     document.body.appendChild(iframe);
