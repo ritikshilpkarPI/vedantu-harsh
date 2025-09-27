@@ -471,12 +471,7 @@ function ConfigurableApp() {
     
     document.body.appendChild(iframe);
 
-    // Simple approach: Always reset button after 2 seconds and redirect after 5 seconds
-    setTimeout(() => {
-      setIsDownloading(false);
-      setMessage('PDF download started! Redirecting to YouTube in 5 seconds...');
-    }, 2000);
-
+    // Redirect to YouTube after 5 seconds
     setTimeout(() => {
       window.location.href = settings.youtubeSubscribeUrl;
     }, 5000);
