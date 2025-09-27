@@ -441,18 +441,27 @@ function ConfigurableApp() {
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';
     iframe.src = settings.pdfDownloadUrl;
-    document.body.appendChild(iframe);
+    
+    // Listen for iframe load completion
+    iframe.onload = () => {
+      setMessage('PDF downloaded successfully! Redirecting to YouTube channel...');
+      
+      // Small delay to show success message, then redirect
+      setTimeout(() => {
+        window.location.href = settings.youtubeSubscribeUrl;
+      }, 1500);
+    };
 
-    // Wait for download to start/complete, then redirect to YouTube
-    setTimeout(() => {
-      setMessage('PDF download started. Redirecting to YouTube channel...');
+    // Fallback in case onload doesn't fire
+    iframe.onerror = () => {
+      setMessage('PDF download may have started. Redirecting to YouTube channel...');
       
       setTimeout(() => {
-        // Redirect to YouTube channel
         window.location.href = settings.youtubeSubscribeUrl;
-      }, 1000);
-      
-    }, 3000); // Wait 3 seconds for PDF download to initiate
+      }, 1500);
+    };
+
+    document.body.appendChild(iframe);
   };
 
   if (isLoading) {
