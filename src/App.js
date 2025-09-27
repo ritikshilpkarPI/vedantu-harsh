@@ -434,20 +434,19 @@ function ConfigurableApp() {
   }, [configId]);
 
   const handleSubscribeAndDownload = () => {
-    // Download PDF immediately
-    const pdfUrl = `/r?u=${encodeForRedirect(settings.pdfDownloadUrl)}`;
-    window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+    // Download PDF directly
+    const link = document.createElement('a');
+    link.href = settings.pdfDownloadUrl;
+    link.download = 'study-material.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     
-    // Open YouTube in new tab
-    const youtubeUrl = `/r?u=${encodeForRedirect(settings.youtubeSubscribeUrl)}`;
-    window.open(youtubeUrl, '_blank', 'noopener,noreferrer');
+    // Then redirect to YouTube channel
+    window.location.href = settings.youtubeSubscribeUrl;
 
     setIsDownloading(true);
-    setMessage('Opening YouTube channel and downloading PDF...');
-    setTimeout(() => {
-      setIsDownloading(false);
-      setMessage('PDF is downloading and YouTube channel is opening. If either did not open automatically, please use the "Open in Browser" button on the new page.');
-    }, 1200);
+    setMessage('Downloading PDF and redirecting to YouTube...');
   };
 
   if (isLoading) {
