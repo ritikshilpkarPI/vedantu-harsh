@@ -434,19 +434,25 @@ function ConfigurableApp() {
   }, [configId]);
 
   const handleSubscribeAndDownload = () => {
-    // Download PDF directly
-    const link = document.createElement('a');
-    link.href = settings.pdfDownloadUrl;
-    link.download = 'study-material.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Then redirect to YouTube channel
-    window.location.href = settings.youtubeSubscribeUrl;
-
     setIsDownloading(true);
-    setMessage('Downloading PDF and redirecting to YouTube...');
+    setMessage('Starting PDF download...');
+
+    // Create a hidden iframe to download the PDF
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = settings.pdfDownloadUrl;
+    document.body.appendChild(iframe);
+
+    // Wait for download to start/complete, then redirect to YouTube
+    setTimeout(() => {
+      setMessage('PDF download started. Redirecting to YouTube channel...');
+      
+      setTimeout(() => {
+        // Redirect to YouTube channel
+        window.location.href = settings.youtubeSubscribeUrl;
+      }, 1000);
+      
+    }, 3000); // Wait 3 seconds for PDF download to initiate
   };
 
   if (isLoading) {
