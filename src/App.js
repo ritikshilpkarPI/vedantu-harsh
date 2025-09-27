@@ -399,7 +399,6 @@ function MainApp() {
    ----------------------- */
 function ConfigurableApp() {
   const { configId } = useParams();
-  const [hasSubscribed, setHasSubscribed] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [message, setMessage] = useState('');
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -412,7 +411,7 @@ function ConfigurableApp() {
         // fallback to defaults if configId not present or too short
         setSettings(DEFAULT_SETTINGS);
         setIsLoading(false);
-        return;
+      return;
       }
       const urlWithoutRandomAndTime = configId.substring(6, configId.length - 8);
       let base64Config = urlWithoutRandomAndTime.replace(/-/g, '+').replace(/_/g, '/');
@@ -434,22 +433,20 @@ function ConfigurableApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configId]);
 
-  const handleDownloadPDF = () => {
-    // Temporarily enabled - no subscription check
-    // if (!hasSubscribed) {
-    //   setMessage('Please subscribe to the channel first to download the PDF.');
-    //   return;
-    // }
-
-    // open our redirect route so the user can get to a real browser
-    const r = `/r?u=${encodeForRedirect(settings.pdfDownloadUrl)}`;
-    window.open(r, '_blank', 'noopener,noreferrer');
+  const handleSubscribeAndDownload = () => {
+    // Download PDF immediately
+    const pdfUrl = `/r?u=${encodeForRedirect(settings.pdfDownloadUrl)}`;
+    window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+    
+    // Open YouTube in new tab
+    const youtubeUrl = `/r?u=${encodeForRedirect(settings.youtubeSubscribeUrl)}`;
+    window.open(youtubeUrl, '_blank', 'noopener,noreferrer');
 
     setIsDownloading(true);
-    setMessage('Attempting to open PDF in browser...');
+    setMessage('Opening YouTube channel and downloading PDF...');
     setTimeout(() => {
       setIsDownloading(false);
-      setMessage('If the PDF did not open automatically, please use the "Open in Browser" button on the new page.');
+      setMessage('PDF is downloading and YouTube channel is opening. If either did not open automatically, please use the "Open in Browser" button on the new page.');
     }, 1200);
   };
 
@@ -546,46 +543,32 @@ function ConfigurableApp() {
               </p>
             </div>
 
-            <div className="two-button-layout">
-              {/* Use redirect link for subscribe */}
-              <a
-                href={`/r?u=${encodeForRedirect(settings.youtubeSubscribeUrl)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-subscribe"
-                onClick={() => {
-                  setHasSubscribed(true);
-                  setMessage('YouTube opened — please subscribe and then return to this tab to download the PDF.');
-                }}
-              >
-                📺 Subscribe to Channel
-              </a>
-
-              <button
-                className="btn btn-download"
-                onClick={handleDownloadPDF}
+            <div className="cta-buttons">
+              <button 
+                className="btn btn-primary"
+                onClick={handleSubscribeAndDownload}
                 disabled={isDownloading}
               >
                 {isDownloading ? (
                   <>
-                    <span className="loading" /> Opening PDF...
+                    <span className="loading" /> Opening YouTube & Downloading PDF...
                   </>
                 ) : (
-                  '📄 Download PDF'
+                  '📺 Subscribe & Download PDF'
                 )}
               </button>
             </div>
 
-            {message && <div className={`message ${hasSubscribed ? 'success' : 'info'}`}>{message}</div>}
+            {message && <div className="message info">{message}</div>}
 
             <div className="instructions">
               <p>
                 <strong>How it works:</strong>
               </p>
               <ol>
-                <li>Click "Subscribe to Channel" — the redirect will attempt to open YouTube in the browser or app.</li>
-                <li>Subscribe and return to this tab.</li>
-                <li>Click "Download PDF" — that opens the redirect page which helps open the PDF in your browser.</li>
+                <li>Click "Subscribe & Download PDF" — this will open YouTube channel and download the PDF simultaneously.</li>
+                <li>Subscribe to the channel on YouTube.</li>
+                <li>The PDF will be downloaded automatically to your device.</li>
               </ol>
             </div>
           </div>
