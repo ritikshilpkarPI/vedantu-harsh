@@ -433,14 +433,41 @@ function ConfigurableApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configId]);
 
+  // Convert various URL types to direct download URLs
+  const convertToDownloadUrl = (url) => {
+    // Handle Google Drive URLs
+    if (url.includes('drive.google.com/file/d/')) {
+      const fileId = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1];
+      if (fileId) {
+        return `https://drive.google.com/uc?export=download&id=${fileId}`;
+      }
+    }
+    
+    // Handle Dropbox URLs
+    if (url.includes('dropbox.com') && !url.includes('dl=1')) {
+      return url.includes('?') ? `${url}&dl=1` : `${url}?dl=1`;
+    }
+    
+    // Handle OneDrive URLs
+    if (url.includes('onedrive.live.com') || url.includes('1drv.ms')) {
+      return url.replace('/view', '/download').replace('?e=', '&download=1&e=');
+    }
+    
+    // Return original URL for direct downloads (PDFs, etc.)
+    return url;
+  };
+
   const handleSubscribeAndDownload = () => {
     setIsDownloading(true);
     setMessage('Starting PDF download...');
 
+    // Convert URL to direct download if needed
+    const downloadUrl = convertToDownloadUrl(settings.pdfDownloadUrl);
+
     // Create a hidden iframe to download the PDF
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';
-    iframe.src = settings.pdfDownloadUrl;
+    iframe.src = downloadUrl;
     
     // Listen for iframe load completion
     iframe.onload = () => {
