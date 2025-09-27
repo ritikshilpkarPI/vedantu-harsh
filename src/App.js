@@ -469,28 +469,17 @@ function ConfigurableApp() {
     iframe.style.display = 'none';
     iframe.src = downloadUrl;
     
-    // Listen for iframe load completion
-    iframe.onload = () => {
+    document.body.appendChild(iframe);
+
+    // Simple approach: Always reset button after 2 seconds and redirect after 5 seconds
+    setTimeout(() => {
       setIsDownloading(false);
       setMessage('PDF download started! Redirecting to YouTube in 5 seconds...');
-      
-      // 5 second delay to ensure download completes, then redirect
+    }, 2000);
+
     setTimeout(() => {
-        window.location.href = settings.youtubeSubscribeUrl;
-      }, 5000);
-    };
-
-    // Fallback in case onload doesn't fire
-    iframe.onerror = () => {
-      setIsDownloading(false);
-      setMessage('PDF download may have started. Redirecting to YouTube in 5 seconds...');
-      
-      setTimeout(() => {
-        window.location.href = settings.youtubeSubscribeUrl;
-      }, 5000);
-    };
-
-    document.body.appendChild(iframe);
+      window.location.href = settings.youtubeSubscribeUrl;
+    }, 5000);
   };
 
   if (isLoading) {
