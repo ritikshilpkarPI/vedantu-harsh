@@ -557,6 +557,7 @@ function ConfigurableApp() {
                   '📺 Subscribe & Download PDF'
                 )}
               </button>
+              
             </div>
 
             {message && <div className="message info">{message}</div>}
